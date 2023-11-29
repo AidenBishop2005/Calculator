@@ -179,24 +179,53 @@ class Calc_Logic(QMainWindow, Ui_MainWindow):
         """
         Squares the current number.
         """
-        __tempnum = self.__curnum
-        for i in range(len(self.__curnum)):
-          self.__backspaceFunction()
-        self.__curnum = str(pow(float(__tempnum), 2))
-        self.updateView()
-        
-        
+        try:
+            # Validate input and convert to float if valid
+            temp_num = float(self.__curnum)
+
+            # Perform calculation
+            squared_num = pow(temp_num, 2)
+
+            # Update current number and display
+            self.__curnum = str(squared_num)
+            self.updateView()
+
+        except ValueError:
+            # Handle invalid input
+            print("Invalid input for squaring operation.")
+
+        except Exception as e:
+            # Handle unexpected exceptions
+            print("Error:", e)
+            
 
     def __squarerootFunction(self) -> None:
         """
         Calculates the square root of the current number.
         """
-        __tempnum = self.__curnum
-        for i in range(len(self.__curnum)):
-            self.__backspaceFunction()
-        self.__curnum = str(sqrt(float(__tempnum)))
-        self.updateView()
-        
+        try:
+            # Validate input and convert to float if valid
+            temp_num = float(self.__curnum)
+
+            # Check if the number is negative
+            if temp_num < 0:
+                raise ValueError("Square root cannot be calculated for negative numbers.")
+
+            # Perform calculation
+            square_root = sqrt(temp_num)
+
+            # Update current number and display
+            self.__curnum = str(square_root)
+            self.updateView()
+
+        except ValueError:
+            # Handle invalid input or negative number
+            print("Invalid input or square root cannot be calculated for negative numbers.")
+
+        except Exception as e:
+            # Handle unexpected exceptions
+            print("Error:", e)
+
 
     def __multiplicationFunction(self) -> None:
         """
@@ -210,6 +239,7 @@ class Calc_Logic(QMainWindow, Ui_MainWindow):
                 self.updateView()
             except Exception as e:
                 print(e)
+                
     def __divisionFunction(self) -> None:
         """
         Appends the division operator '/' to the input list and initiates a new equation.
@@ -268,34 +298,42 @@ class Calc_Logic(QMainWindow, Ui_MainWindow):
         try:
             while True:
                 operator_index = -1  # Initialize operator index as not found
+                
+                if ('×' in self.__allinput) or ( '÷' in self.__allinput):
+                    # Handle multiplication
+                    if '×' in self.__allinput:
+                        operator_index = self.__allinput.index('×')  # Find the first multiplication operator
+                        self.__allinput[operator_index - 1] *= self.__allinput[operator_index + 1]  # Perform multiplication
+                        del self.__allinput[operator_index]  # Remove the used operator
+                        del self.__allinput[operator_index]  # Remove the used operand
 
-                # Handle multiplication
-                if '×' in self.__allinput:
-                    operator_index = self.__allinput.index('×')  # Find the first multiplication operator
-                    self.__allinput[operator_index - 1] *= self.__allinput[operator_index + 1]  # Perform multiplication
-                    del self.__allinput[operator_index]  # Remove the used operator
-                    del self.__allinput[operator_index]  # Remove the used operand
+                    # Handle division with division by zero check
+                    else:
+                        operator_index = self.__allinput.index('÷')  # Find the first division operator
 
-                # Handle division
-                elif '÷' in self.__allinput:
-                    operator_index = self.__allinput.index('÷')  # Find the first division operator
-                    self.__allinput[operator_index - 1] /= self.__allinput[operator_index + 1]  # Perform division
-                    del self.__allinput[operator_index]  # Remove the used operator
-                    del self.__allinput[operator_index]  # Remove the used operand
+                        # Check for division by zero
+                        if self.__allinput[operator_index + 1] == 0:
+                            raise ValueError("Division by zero is not allowed.")
 
-                # Handle addition
-                elif '+' in self.__allinput:
-                    operator_index = self.__allinput.index('+')  # Find the first addition operator
-                    self.__allinput[operator_index - 1] += self.__allinput[operator_index + 1]  # Perform addition
-                    del self.__allinput[operator_index]  # Remove the used operator
-                    del self.__allinput[operator_index]  # Remove the used operand
+                        # Perform division if not dividing by zero
+                        self.__allinput[operator_index - 1] /= self.__allinput[operator_index + 1]  # Perform division
+                        del self.__allinput[operator_index]  # Remove the used operator
+                        del self.__allinput[operator_index]  # Remove the used operand
+                
+                if ('+' in self.__allinput) or ('-' in self.__allinput):
+                    # Handle addition
+                    if '+' in self.__allinput:
+                        operator_index = self.__allinput.index('+')  # Find the first addition operator
+                        self.__allinput[operator_index - 1] += self.__allinput[operator_index + 1]  # Perform addition
+                        del self.__allinput[operator_index]  # Remove the used operator
+                        del self.__allinput[operator_index]  # Remove the used operand
 
-                # Handle subtraction
-                elif '-' in self.__allinput:
-                    operator_index = self.__allinput.index('-')  # Find the first subtraction operator
-                    self.__allinput[operator_index - 1] -= self.__allinput[operator_index + 1]  # Perform subtraction
-                    del self.__allinput[operator_index]  # Remove the used operator
-                    del self.__allinput[operator_index]  # Remove the used operand
+                    # Handle subtraction
+                    else:
+                        operator_index = self.__allinput.index('-')  # Find the first subtraction operator
+                        self.__allinput[operator_index - 1] -= self.__allinput[operator_index + 1]  # Perform subtraction
+                        del self.__allinput[operator_index]  # Remove the used operator
+                        del self.__allinput[operator_index]  # Remove the used operand
 
                 # If no operators found, break out of the loop
                 if operator_index == -1:
